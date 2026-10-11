@@ -30,4 +30,4 @@ Route::middleware(['auth:api', 'check.role'])->group(function () {
 Route::middleware(['auth:api', 'check.role:Administrador'])->group(function () {
     Route::apiResource('usuarios', UserController::class);
     Route::patch('usuarios/{usuario}/toggle-state', [UserController::class, 'toggleState']);
-});p
+});
