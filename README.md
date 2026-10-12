@@ -1,75 +1,58 @@
-# API Backend - Sistema de Gestión de Obras y Gastos
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-Este repositorio contiene el código fuente del backend (API RESTful) para el sistema de control financiero, registro de gastos en sitio y validación de comprobantes SAT para proyectos de construcción. El sistema está diseñado bajo una arquitectura desacoplada y se ejecuta en contenedores Docker para garantizar la consistencia entre los entornos de desarrollo y producción.
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## 🛠 Stack Tecnológico
+## About Laravel
 
-El proyecto está construido sobre las versiones más recientes y con soporte a largo plazo (LTS) del ecosistema PHP.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-| Tecnología | Versión | Propósito |
-| :--- | :--- | :--- |
-| **PHP** | 8.3 | Lenguaje base, ofrece tipado estricto y alto rendimiento. |
-| **Laravel** | 11.x | Framework backend para la construcción ágil de la API REST. |
-| **PostgreSQL** | 16 | Base de datos relacional para la integridad financiera e historial de transacciones. |
-| **Docker (Sail)**| Última | Orquestación de contenedores para entornos locales y despliegue. |
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-## 📦 Librerías Principales
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-| Paquete (Composer) | Descripción y Uso |
-| :--- | :--- |
-| `laravel/sanctum` | Sistema de autenticación ligero basado en tokens para la conexión segura con la PWA. |
-| `maatwebsite/excel` | Generación y exportación de reportes de auditoría y gastos en formato `.xlsx`. |
-| `phpcfdi/sat-estado-cfdi` | Consulta directa al Web Service del SAT para validar el estado (Vigente/Cancelado) de los tickets mediante el escaneo QR. |
-| `spatie/laravel-query-builder` | Creación rápida de filtros complejos, ordenamiento y paginación en los endpoints de auditoría. |
+## Learning Laravel
 
-## ✅ Calidad de Código
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
 
-Este proyecto utiliza un stack de calidad estándar en el ecosistema Laravel para mantener un código limpio y libre de errores antes de cada despliegue:
+In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-| Herramienta | Propósito |
-| :--- | :--- |
-| **Laravel Pint** | Formateo automático de código (Estilos y estándares PSR). |
-| **PHPStan** | Análisis estático de tipos y detección de errores estructurales sin ejecutar el código. |
-| **Pest** | Framework para pruebas automatizadas (Testing) de la API. |
+You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
 
-> Se requiere obligatoriamente correr las pruebas y el linter antes de abrir y aprobar un Pull Request.
+## Agentic Development
 
-## 🌿 Estrategia de Ramas
+Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
 
-Se utiliza un flujo de trabajo basado en Git Flow adaptado para despliegues continuos.
+```bash
+composer require laravel/boost --dev
 
-| Rama | Propósito |
-| :--- | :--- |
-| `main` | Producción. Código 100% estable y auditado. |
-| `staging` | QA / Pre-producción. Entorno de pruebas final con datos espejo. |
-| `develop` | Integración continua. Base principal para el desarrollo diario. |
-| `feature/*` | Desarrollo de nuevas funcionalidades o endpoints. |
-| `bugfix/*` | Correcciones de errores no críticos encontrados en desarrollo/QA. |
-| `hotfix/*` | Correcciones urgentes para fallos detectados directamente en producción. |
+php artisan boost:install
+```
 
-**Flujo de Promoción de Ambientes:**
-`feature/*` | `bugfix/*` | `hotfix/*` ➔ `develop` ➔ `staging` ➔ `main`
+Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
 
-## 📂 Estructura Base del Proyecto
+## Contributing
 
-El sistema adopta la estructura minimalista de Laravel 11, enfocada en la limpieza del directorio principal.
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-```text
-app/
-├── Models/              # Representación de tablas (User, Obra, Gasto, Concepto)
-├── Http/
-│   ├── Controllers/     # Lógica de los endpoints de la API (Api/V1/)
-│   ├── Requests/        # Validaciones de formularios y payloads entrantes
-│   └── Middleware/      # Filtros de peticiones (Roles, Autenticación)
-└── Providers/           # Registro de servicios del sistema
-database/
-├── migrations/          # Control de versiones de la estructura de PostgreSQL
-├── factories/           # Generadores de datos falsos para testing
-└── seeders/             # Población inicial de catálogos y administradores
-routes/
-├── api.php              # Definición exclusiva de rutas RESTful y versiones (v1)
-└── console.php          # Comandos de terminal personalizados
-tests/
-├── Feature/             # Pruebas de integración de los endpoints API
-├── Unit/                # Pruebas aisladas de servicios (ej. Lógica del SAT)
-└── Pest.php             # Configuración del entorno de testing
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
