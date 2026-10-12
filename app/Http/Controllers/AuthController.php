@@ -100,7 +100,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Sesión cerrada correctamente.'
+            'message' => 'Sesion cerrada correctamente.'
         ]);
     }
 

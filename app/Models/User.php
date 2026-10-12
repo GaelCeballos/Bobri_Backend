@@ -2,77 +2,67 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
-        'rol',
-        'estado',
-        'current_token',
+        'is_active',
+        'session_id',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
-        'current_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
     /**
-     * Métodos requeridos por JWTSubject para generar el token JWT.
+     * Verifica si el usuario está activo.
      */
-    public function getJWTIdentifier(): mixed
+    public function isActive(): bool
+    {
+        return (bool) ($this->is_active ?? true);
+    }
+
+    /**
+     * Alterna el estado del usuario (active / inactive).
+     */
+    public function toggleState(): bool
+    {
+        $this->is_active = !$this->is_active;
+        return $this->save();
+    }
+
+    /**
+     * Identificador para la clave del JWT.
+     */
+    public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
+    /**
+     * Claims personalizados para el payload del JWT.
+     */
     public function getJWTCustomClaims(): array
     {
-        return [
-            'rol' => $this->rol,
-            'estado' => $this->estado,
-        ];
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->rol === 'Administrador';
-    }
-
-    public function isTrabajador(): bool
-    {
-        return $this->rol === 'Trabajador';
-    }
-
-    public function isActive(): bool
-    {
-        return $this->estado === 'Activo';
+        return [];
     }
 }

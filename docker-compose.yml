@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bobri-backend-app
+    user: "0:0"
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: pgsql
+      DB_PORT: 5432
+      DB_DATABASE: bobri
+      DB_USERNAME: sail
+      DB_PASSWORD: password
+    volumes:
+      - .:/var/www/html:z
+    working_dir: /var/www/html
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    command: >
+      /bin/sh -c "composer install --no-interaction --prefer-dist || true;
+      php artisan key:generate --force || true;
+      php artisan jwt:secret --force || true;
+      php artisan serve --host=0.0.0.0 --port=8000"
+
+  pgsql:
+    image: postgres:17-alpine
+    container_name: bobri-backend-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: bobri
+      POSTGRES_USER: sail
+      POSTGRES_PASSWORD: password
+    volumes:
+      - sail-pgsql:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sail -d bobri"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  sail-pgsql:
