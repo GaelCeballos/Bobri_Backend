@@ -6,14 +6,14 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Rutas Públicas de Autenticación
+| Rutas Públicas
 |--------------------------------------------------------------------------
 */
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 /*
 |--------------------------------------------------------------------------
-| Rutas Protegidas (Requieren JWT válido y Estado Activo)
+| Rutas Protegidas por Autenticación y Estado Activo
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:api', 'check.role'])->group(function () {
