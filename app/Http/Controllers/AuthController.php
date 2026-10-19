@@ -61,7 +61,7 @@ class AuthController extends Controller
         // Se guarda el token nuevo como la única sesión válida del usuario
         $user?->update(['current_token' => $token]);
 
-        return $this->respondWithToken($token);
+        return $this->respondWithToken($token, $user);
     }
 
     /**
@@ -121,15 +121,22 @@ class AuthController extends Controller
             $user->update(['current_token' => $newToken]);
         }
 
-        return $this->respondWithToken($newToken);
+        return $this->respondWithToken($newToken, $user);
     }
 
     /**
-     * Responde con el token de autenticación.
-     * @param string $token
+     * Responde con el token de autenticación y los datos del usuario.
+     *
+     * El usuario se recibe como parámetro porque, justo después de
+     * `JWTAuth::attempt()` en el login, `auth('api')->user()` todavía está vacío
+     * (el guard no conoce el token recién creado) y la respuesta llevaba
+     * `"user": null`. El front necesita ese usuario para saber su rol.
+     *
+     * @param string $token JWT recién emitido
+     * @param User|null $user Dueño del token
      * @return JsonResponse
      */
-    protected function respondWithToken(string $token): JsonResponse
+    protected function respondWithToken(string $token, ?User $user): JsonResponse
     {
         /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
         $guard = auth('api');
@@ -139,7 +146,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => $guard->factory()->getTTL() * 60,
-            'user' => auth('api')->user()
+            'user' => $user,
         ]);
     }
 }
