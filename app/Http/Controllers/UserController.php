@@ -43,6 +43,11 @@ class UserController extends Controller
     {
         $user = User::create($request->validated());
 
+        // Si no se envió `estado`, la base de datos pone 'Activo' por defecto,
+        // pero el modelo en memoria no lo sabe; refresh() lo relee para que la
+        // respuesta no lleve `estado: null`.
+        $user->refresh();
+
         return response()->json([
             'status' => 'success',
             'message' => 'Usuario creado exitosamente.',
