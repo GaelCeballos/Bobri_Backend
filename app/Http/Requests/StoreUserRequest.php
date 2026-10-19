@@ -8,11 +8,15 @@ use Illuminate\Foundation\Http\FormRequest;
 class StoreUserRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Solo un Administrador puede dar de alta usuarios.
+     *
+     * La ruta ya está protegida con `check.role:Administrador`; esta revisión es
+     * una segunda barrera por si la petición se reutilizara en otra ruta.
+     * (Antes leía `is_admin`, una columna que no existe, y siempre negaba el acceso.)
      */
     public function authorize(): bool
     {
-        return auth('api')->user()?->is_admin ?? false;
+        return auth('api')->user()?->isAdmin() ?? false;
     }
 
     /**
