@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneNombreNormalizado;
+use App\Support\NormalizadorTexto;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $nombre Como lo escribió el usuario (se muestra en pantalla)
  * @property string $nombre_normalizado Huella única calculada por el trait
+ * @property string $palabras_clave Firma para detectar posibles duplicados (no única)
  * @property int $categoria_id
  * @property string $unidad_medida Por defecto "pieza"
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -41,6 +43,18 @@ class Concepto extends Model
      * @var list<string>
      */
     protected $fillable = ['nombre', 'categoria_id', 'unidad_medida'];
+
+    /**
+     * Antes de cada INSERT o UPDATE recalcula `palabras_clave` a partir del nombre,
+     * igual que el trait hace con `nombre_normalizado`. Así la firma nunca queda
+     * desactualizada cuando el administrador corrige un nombre, y nunca viene del cliente.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Concepto $concepto): void {
+            $concepto->palabras_clave = NormalizadorTexto::palabrasClave((string) $concepto->nombre);
+        });
+    }
 
     /**
      * Categoría a la que pertenece (sustituye al antiguo enum `categoria`).

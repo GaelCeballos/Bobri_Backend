@@ -39,7 +39,12 @@ Route::middleware(['auth:api', 'check.role:Administrador'])->group(function () {
     Route::apiResource('usuarios', UserController::class);
     Route::patch('usuarios/{usuario}/toggle-state', [UserController::class, 'toggleState']);
 
+    // Reporte de conceptos que parecen el mismo (para revisarlos y fusionarlos)
+    Route::get('conceptos/posibles-duplicados', [ConceptoController::class, 'posiblesDuplicados']);
+
     // Corrección de catálogos (renombrar, cambiar categoría o unidad)
     Route::patch('categorias/{categoria}', [CategoriaController::class, 'update']);
     Route::patch('conceptos/{concepto}', [ConceptoController::class, 'update']);
+    // Une un concepto duplicado con otro: mueve sus gastos y lo elimina
+    Route::post('conceptos/{concepto}/fusionar', [ConceptoController::class, 'fusionar']);
 });

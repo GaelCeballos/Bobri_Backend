@@ -16,6 +16,10 @@ use Illuminate\Foundation\Http\FormRequest;
  *
  * Si ya existe un concepto con la misma huella normalizada no es un error:
  * el controlador devuelve el existente en lugar de duplicarlo.
+ *
+ * Si existe uno PARECIDO (mismas palabras clave, p. ej. "Saco de cemento 25 kg"
+ * vs "Cemento saco 25 kg"), el controlador responde 409 con los candidatos, salvo
+ * que llegue `confirmar_nuevo: true`.
  */
 class StoreConceptoRequest extends FormRequest
 {
@@ -47,6 +51,8 @@ class StoreConceptoRequest extends FormRequest
             'categoria_id' => ['required_without:categoria_nombre', 'prohibits:categoria_nombre', 'integer', 'exists:categorias,id'],
             'categoria_nombre' => ['required_without:categoria_id', 'string', 'max:100', 'regex:/[\pL\pN]/u'],
             'unidad_medida' => ['sometimes', 'string', 'max:50'],
+            // true = el usuario ya vio el aviso "¿Quisiste decir…?" y eligió crear uno nuevo
+            'confirmar_nuevo' => ['sometimes', 'boolean'],
         ];
     }
 
@@ -87,6 +93,7 @@ class StoreConceptoRequest extends FormRequest
             'categoria_nombre.regex' => 'El nombre de la categoría debe contener letras o números.',
             'unidad_medida.string' => 'La unidad de medida debe ser texto.',
             'unidad_medida.max' => 'La unidad de medida no puede tener más de 50 caracteres.',
+            'confirmar_nuevo.boolean' => 'confirmar_nuevo debe ser verdadero o falso.',
         ];
     }
 }
