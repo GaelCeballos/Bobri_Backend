@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\ConceptoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +22,12 @@ Route::middleware(['auth:api', 'check.role'])->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+
+    // Catálogos que alimentan ambos roles al capturar gastos: consultar y crear
+    Route::get('/categorias', [CategoriaController::class, 'index']);
+    Route::post('/categorias', [CategoriaController::class, 'store']);
+    Route::get('/conceptos', [ConceptoController::class, 'index']);
+    Route::post('/conceptos', [ConceptoController::class, 'store']);
 });
 
 /*
@@ -30,4 +38,8 @@ Route::middleware(['auth:api', 'check.role'])->group(function () {
 Route::middleware(['auth:api', 'check.role:Administrador'])->group(function () {
     Route::apiResource('usuarios', UserController::class);
     Route::patch('usuarios/{usuario}/toggle-state', [UserController::class, 'toggleState']);
+
+    // Corrección de catálogos (renombrar, cambiar categoría o unidad)
+    Route::patch('categorias/{categoria}', [CategoriaController::class, 'update']);
+    Route::patch('conceptos/{concepto}', [ConceptoController::class, 'update']);
 });
