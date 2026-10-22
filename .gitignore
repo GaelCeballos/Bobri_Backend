@@ -25,3 +25,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Contexto local del proyecto (no se sube al remoto)
+CONTEXTO_BACKEND.md
