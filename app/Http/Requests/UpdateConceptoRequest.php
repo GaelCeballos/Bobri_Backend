@@ -42,7 +42,8 @@ class UpdateConceptoRequest extends FormRequest
         return [
             'nombre' => ['bail', 'sometimes', 'string', 'max:200', 'regex:/[\pL\pN]/u', $this->nombreNoDuplicado(...)],
             'categoria_id' => ['sometimes', 'integer', 'exists:categorias,id'],
-            'unidad_medida' => ['sometimes', 'string', 'max:50'],
+            // null quita la unidad sugerida (p. ej. si a "Fontanero Manuel" se le había puesto "pieza")
+            'unidad_medida' => ['sometimes', 'nullable', 'string', 'max:50'],
         ];
     }
 

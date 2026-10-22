@@ -50,7 +50,9 @@ class StoreConceptoRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:200', 'regex:/[\pL\pN]/u'],
             'categoria_id' => ['required_without:categoria_nombre', 'prohibits:categoria_nombre', 'integer', 'exists:categorias,id'],
             'categoria_nombre' => ['required_without:categoria_id', 'string', 'max:100', 'regex:/[\pL\pN]/u'],
-            'unidad_medida' => ['sometimes', 'string', 'max:50'],
+            // Unidad sugerida y opcional: los pagos de mano de obra o servicios ("Fontanero Manuel")
+            // no tienen unidad. `nullable` acepta null y "" (Laravel convierte "" en null)
+            'unidad_medida' => ['sometimes', 'nullable', 'string', 'max:50'],
             // true = el usuario ya vio el aviso "¿Quisiste decir…?" y eligió crear uno nuevo
             'confirmar_nuevo' => ['sometimes', 'boolean'],
         ];
