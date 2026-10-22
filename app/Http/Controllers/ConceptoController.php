@@ -109,7 +109,9 @@ class ConceptoController extends Controller
         // Puede ser false si otra persona creó el mismo concepto entre el paso 1 y el 2
         $creado = $concepto->wasRecentlyCreated;
         if ($creado) {
-            $concepto->refresh(); // unidad_medida 'pieza' la pone la BD por defecto
+            // Si no se envió unidad_medida, el modelo en memoria no tiene ese campo y la
+            // respuesta lo omitiría; refresh() lo relee de la BD para que llegue como null
+            $concepto->refresh();
         }
         $concepto->load('categoria:id,nombre');
 
@@ -150,9 +152,9 @@ class ConceptoController extends Controller
      * Todo ocurre en una transacción: si algo falla, no se mueve ningún gasto.
      * Solo Administrador (middleware de la ruta + FusionarConceptoRequest).
      *
-     * Si las unidades de medida eran distintas (p. ej. "saco" y "kg") la fusión se
-     * hace igual, pero se devuelve una advertencia porque las cantidades podrían
-     * dejar de ser comparables.
+     * Si las unidades de medida eran distintas (p. ej. "saco" y "kg", o "saco" y
+     * sin unidad) la fusión se hace igual, pero se devuelve una advertencia porque
+     * las cantidades podrían dejar de ser comparables.
      */
     public function fusionar(FusionarConceptoRequest $request, Concepto $concepto): JsonResponse
     {
@@ -173,8 +175,12 @@ class ConceptoController extends Controller
             return $movidos;
         });
 
+        // Un concepto sin unidad (null) se muestra como "sin unidad" en lugar de «»
+        $unidadOrigen = $concepto->unidad_medida ?? 'sin unidad';
+        $unidadDestino = $destino->unidad_medida ?? 'sin unidad';
+
         $advertencia = $concepto->unidad_medida !== $destino->unidad_medida
-            ? "Las unidades eran distintas («{$concepto->unidad_medida}» y «{$destino->unidad_medida}»); revisa las cantidades de los gastos movidos."
+            ? "Las unidades eran distintas («{$unidadOrigen}» y «{$unidadDestino}»); revisa las cantidades de los gastos movidos."
             : null;
 
         return response()->json([

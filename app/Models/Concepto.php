@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $nombre_normalizado Huella única calculada por el trait
  * @property string $palabras_clave Firma para detectar posibles duplicados (no única)
  * @property int $categoria_id
- * @property string $unidad_medida Por defecto "pieza"
+ * @property string|null $unidad_medida Unidad sugerida para el formulario de gasto; null en pagos de mano de obra o servicios
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Categoria $categoria
