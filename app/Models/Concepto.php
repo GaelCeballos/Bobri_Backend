@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\TieneNombreNormalizado;
 use App\Support\NormalizadorTexto;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,7 +35,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Concepto extends Model
 {
-    use TieneNombreNormalizado;
+    /** @use HasFactory<\Database\Factories\ConceptoFactory> Permite Modelo::factory() en las pruebas */
+    use HasFactory, TieneNombreNormalizado;
 
     /**
      * Campos asignables desde una petición. `nombre_normalizado` no está aquí
