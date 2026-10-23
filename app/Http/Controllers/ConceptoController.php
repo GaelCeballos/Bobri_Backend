@@ -166,8 +166,10 @@ class ConceptoController extends Controller
             // termine la fusión, así nunca queda un gasto apuntando a un concepto borrado.
             $origen = Concepto::whereKey($concepto->getKey())->lockForUpdate()->firstOrFail();
 
-            // Un solo UPDATE para todos los gastos (no uno por gasto)
-            $movidos = Gasto::where('concepto_id', $origen->getKey())
+            // Un solo UPDATE para todos los gastos (no uno por gasto). withTrashed(): también los
+            // gastos borrados (soft delete) siguen apuntando al concepto; si no se movieran, la
+            // llave restrictOnDelete impediría borrar el origen y la fusión respondería 500
+            $movidos = Gasto::withTrashed()->where('concepto_id', $origen->getKey())
                 ->update(['concepto_id' => $destino->getKey()]);
 
             $origen->delete();
