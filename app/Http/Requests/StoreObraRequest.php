@@ -27,10 +27,8 @@ class StoreObraRequest extends FormRequest
     /**
      * Reglas de validación.
      *
-     * - `regex:/[\pL\pN]/u`: al menos una letra o número.
-     * - `decimal:0,2`: permite números con hasta 2 decimales (centavos).
-     * - `gt:0`: el importe del contrato debe ser mayor que 0.
-     * - `max:9999999999.99`: el importe del contrato no puede superar 9,999,999,999.99.
+     * - `regex:/[\pL\pN]/u`: al menos una letra o número (rechaza nombres como "---").
+     * - `decimal:0,2`: como máximo 2 decimales (centavos); "1500.555" se rechaza en vez de redondearse.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -39,8 +37,11 @@ class StoreObraRequest extends FormRequest
         return [
             'nombre' => ['required', 'string', 'max:200', 'regex:/[\pL\pN]/u'],
             'cliente' => ['required', 'string', 'max:200', 'regex:/[\pL\pN]/u'],
+            // Dirección o referencia libre ("Calle Colón 45, Villa de Álvarez"); es opcional
             'ubicacion' => ['nullable', 'string', 'max:1000'],
+            // Mayor que 0: el semáforo divide el saldo entre el contrato. El tope es el de decimal(12,2)
             'importe_contrato' => ['required', 'numeric', 'decimal:0,2', 'gt:0', 'max:9999999999.99'],
+            // Opcional: si no se envía, la base de datos pone 'Activa'
             'estado' => ['sometimes', Rule::in(['Activa', 'Finalizada'])],
         ];
     }
@@ -58,6 +59,21 @@ class StoreObraRequest extends FormRequest
             'ubicacion' => 'ubicación',
             'importe_contrato' => 'importe del contrato',
             'estado' => 'estado',
+        ];
+    }
+
+    /**
+     * Mensajes propios solo donde el genérico de lang/es no se entiende
+     * ("El formato del campo … es inválido", "debe tener 0-2 decimales").
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'nombre.regex' => 'El nombre de la obra debe contener letras o números.',
+            'cliente.regex' => 'El cliente debe contener letras o números.',
+            'importe_contrato.decimal' => 'El importe del contrato admite como máximo 2 decimales (centavos).',
         ];
     }
 }
