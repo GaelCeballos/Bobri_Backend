@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -16,7 +17,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $estado
  */
 class Obra extends Model
-{   
+{
+    /** @use HasFactory<\Database\Factories\ObraFactory> Permite Modelo::factory() en las pruebas */
+    use HasFactory;
+
     // Proteger los campos que se pueden asignar masivamente
     protected $fillable = ['nombre', 'cliente', 'ubicacion', 'importe_contrato', 'estado'];
 

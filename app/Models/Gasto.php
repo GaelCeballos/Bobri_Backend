@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,7 +23,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Carbon\Carbon|null $fecha_gasto
  */
 class Gasto extends Model
-{   
+{
+    /** @use HasFactory<\Database\Factories\GastoFactory> Permite Modelo::factory() en las pruebas */
+    use HasFactory;
+
     //  Proteger los campos que se pueden asignar masivamente
     protected $fillable = [
         'obra_id','concepto_id', 'user_id',

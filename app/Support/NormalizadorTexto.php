@@ -53,6 +53,7 @@ final class NormalizadorTexto
         '³' => '3', '²' => '2', // m³ → m3, m² → m2
     ];
 
+
     /**
      * Calcula la huella normalizada de un texto.
      *
@@ -94,6 +95,101 @@ final class NormalizadorTexto
 
         // 6. Espacios
         return trim(preg_replace('/\s+/', ' ', $texto));
+    }
+
+    /**
+     * Palabras que no distinguen un producto de otro (usadas por {@see palabrasClave()}).
+     *
+     * Se incluyen "compra" y "pago" porque todo gasto es una compra o un pago
+     * ("Compra de pala" = "Pala"), pero NO "renta", porque sí cambia el
+     * significado ("Renta de revolvedora" ≠ "Revolvedora").
+     *
+     * Las palabras se comparan ya en singular, por eso solo se listan en singular.
+     *
+     * @var list<string>
+     */
+    private const PALABRAS_VACIAS = [
+        'de', 'del', 'la', 'las', 'el', 'los', 'para', 'con', 'y', 'en', 'a', 'al', 'por',
+        // "unos" se convierte en "uno" al pasar a singular, por eso aparece así
+        'un', 'uno', 'una', 'unas', 'compra', 'pago',
+        // Presentación del producto: ya se guarda en unidad_medida ("Saco de cemento 50 kg" = "Cemento 50 kg")
+        'saco', 'bulto', 'costal', 'cubeta', 'bote', 'caja', 'rollo', 'paquete', 'bolsa',
+    ];
+
+    /**
+     * Firma para DETECTAR POSIBLES duplicados que se escriben distinto.
+     *
+     * A diferencia de {@see normalizar()}, no se usa para unir registros
+     * automáticamente: dos conceptos con la misma firma se le muestran al usuario
+     * (409 al crear) o al administrador (reporte) como "posible duplicado", y una
+     * persona decide. Por eso puede ser más agresiva: ignora el orden de las
+     * palabras y las palabras vacías.
+     *
+     * Ejemplos:
+     *  - "Saco de cemento 25 kg" y "Cemento 25 kg" → "25kg cemento"
+     *  - "Compra de pala" y "Palas"                 → "pala"
+     *  - "Tabiques rojos" y "Tabique rojo"          → "rojo tabique"
+     *  - "Tubo de PVC 4\"" y "Tubo PVC 4 pulgadas"  → "4 pvc tubo"
+     *  - "Malla 6-6" y "Malla 6x6"                   → "6x6 malla"
+     *  - "Cemento 50 kg" → "50kg cemento" (otro producto: la cantidad importa)
+     *
+     * @param  string  $texto  Nombre tal como lo escribió el usuario.
+     * @return string Palabras clave únicas, ordenadas alfabéticamente y separadas por espacio.
+     */
+    public static function palabrasClave(string $texto): string
+    {
+        // Unifica medidas tipo "6x6", "6 X 6", "6×6" o "6-6" → "6x6". Va antes de
+        // normalizar() porque esta quita el guion y el signo ×
+        $texto = preg_replace('/(\d)\s*[x×*-]\s*(\d)/iu', '$1x$2', $texto);
+        $texto = self::normalizar($texto);
+        // normalizar() separa número y letra ("6x6" → "6 x6"); aquí se vuelven a unir
+        $texto = preg_replace('/(\d) x(\d)/', '$1x$2', $texto);
+
+        // Ignora la unidad pulgada: en obra casi nunca se escribe ("varilla 3/8",
+        // "tubo 4") y así "4 pulgadas" y 4" coinciden con "4"
+        $texto = preg_replace('/\bpulg\b/', ' ', $texto);
+
+        // Pega cada número con la unidad que lo sigue ("25 kg" → "25kg"): al ordenar las
+        // palabras alfabéticamente, de otro modo el número y su unidad quedarían separados
+        // y se perdería a qué número pertenece cada unidad ("25 kg 50 piezas" → "25kg 50pza")
+        $unidades = implode('|', array_map(
+            fn (string $u): string => preg_quote($u, '/'),
+            array_keys(self::UNIDADES),
+        ));
+        $texto = preg_replace('/(\d)\s+('.$unidades.')\b/', '$1$2', $texto);
+
+        // Singular, sin palabras vacías ni repetidas; el orden alfabético hace que el
+        // orden en que se escribieron no importe
+        $palabras = array_map(self::singular(...), explode(' ', $texto));
+        $palabras = array_unique(array_diff($palabras, self::PALABRAS_VACIAS, ['']));
+        sort($palabras, SORT_STRING);
+
+        return implode(' ', $palabras);
+    }
+
+    /**
+     * Pasa una palabra a singular de forma aproximada ("tabiques" → "tabique",
+     * "tablones" → "tablon"), solo para {@see palabrasClave()}.
+     *
+     * No es una regla gramatical completa ("luces" → "luce"), y no hace falta: la
+     * firma solo se compara contra otras firmas calculadas igual, y un error aquí
+     * a lo mucho provoca una pregunta "¿Quisiste decir…?" de más, nunca una fusión.
+     */
+    private static function singular(string $palabra): string
+    {
+        // Solo palabras de 4 letras o más: números y medidas ("25kg", "3/8") y
+        // palabras cortas ("gas", "mes") se dejan igual
+        if (! preg_match('/^[a-z]{4,}$/', $palabra)) {
+            return $palabra;
+        }
+
+        // "-es" después de l, n, r, d o j: "tablones" → "tablon", "rieles" → "riel"
+        if (preg_match('/[lnrdj]es$/', $palabra)) {
+            return substr($palabra, 0, -2);
+        }
+
+        // "-s" final: "palas" → "pala", "tabiques" → "tabique"
+        return str_ends_with($palabra, 's') ? substr($palabra, 0, -1) : $palabra;
     }
 
     /**
