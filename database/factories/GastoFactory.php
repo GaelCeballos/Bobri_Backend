@@ -37,6 +37,8 @@ class GastoFactory extends Factory
             'concepto_id' => Concepto::factory(),
             'user_id' => User::factory(),
             'cantidad' => fake()->randomFloat(2, 1, 100),
+            // Cantidad y unidad van en pareja (restricción gastos_cantidad_unidad_en_pareja)
+            'unidad_medida' => 'pieza',
             'monto_total' => fake()->randomFloat(2, 100, 50000),
             'tipo_pago' => fake()->randomElement(['Efectivo', 'Tarjeta', 'Transferencia']),
             'fecha_gasto' => fake()->dateTimeBetween('-30 days')->format('Y-m-d'),
