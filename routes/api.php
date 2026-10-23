@@ -36,7 +36,9 @@ Route::middleware(['auth:api', 'check.role'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth:api', 'check.role:Administrador'])->group(function () {
-    Route::apiResource('usuarios', UserController::class);
+    // Sin destroy: un usuario no se borra, se desactiva con toggle-state. Así sus gastos y la
+    // bitácora conservan quién hizo cada cosa (además, gastos.user_id impide borrarlo)
+    Route::apiResource('usuarios', UserController::class)->except('destroy');
     Route::patch('usuarios/{usuario}/toggle-state', [UserController::class, 'toggleState']);
 
     // Reporte de conceptos que parecen el mismo (para revisarlos y fusionarlos)
