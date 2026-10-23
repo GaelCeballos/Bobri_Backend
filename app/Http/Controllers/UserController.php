@@ -19,11 +19,14 @@ class UserController extends Controller
     /**
      * Petición para obtener la lista de usuarios.
      * Nota: estos solo tendra acceso los usuarios con rol "Administrador".
+     *
+     * Devuelve los mismos campos que `show()` (incluido `updated_at`) para que el
+     * front use una sola interfaz `User` en la lista y en el detalle.
      * @return JsonResponse
      */
     public function index(): JsonResponse
     {
-        $users = User::select(['id', 'name', 'email', 'rol', 'estado', 'created_at'])
+        $users = User::select(['id', 'name', 'email', 'rol', 'estado', 'created_at', 'updated_at'])
             ->orderBy('id', 'desc')
             ->get();
 
@@ -95,8 +98,13 @@ class UserController extends Controller
     }
 
     /**
-     * Petición para eliminar un usuario específico.
-     * nota: estos solo tendra acceso los usuarios con rol "Administrador".
+     * Petición para activar o desactivar un usuario (alterna Activo ⇄ Inactivo).
+     * Nota: solo tienen acceso los usuarios con rol "Administrador".
+     *
+     * Es la forma de "dar de baja": los usuarios no se borran (no existe DELETE
+     * /usuarios) para que sus gastos y la bitácora conserven quién hizo cada cosa.
+     * Al desactivar, se invalida su JWT: su siguiente petición recibe 403
+     * USER_INACTIVE y el front lo manda al login.
      * @param User $usuario
      * @return JsonResponse
      */
