@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Route;
 | Rutas Públicas
 |--------------------------------------------------------------------------
 */
-Route::post('/auth/login', [AuthController::class, 'login']);
+// Límite general por IP: frena a quien prueba muchos correos distintos desde la misma
+// máquina. Es holgado (20/min) para que una cuadrilla en la misma red entre sin problema;
+// el bloqueo de 1 min por correo + IP está en AuthController::login
+Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:20,1');
 
 /*
 |--------------------------------------------------------------------------
