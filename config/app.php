@@ -78,8 +78,11 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // Bobri responde en español (lang/es). El valor por defecto es 'es' para que los mensajes
+    // salgan en español aunque el .env del servidor no defina APP_LOCALE
+    'locale' => env('APP_LOCALE', 'es'),
 
+    // Si falta una traducción en lang/es, se usa el texto en inglés que trae Laravel
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),

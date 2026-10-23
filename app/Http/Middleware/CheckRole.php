@@ -21,7 +21,7 @@ class CheckRole
         if (!$user){
             return response()->json([
                 'status'=> 'error',
-                'message'=> 'No autorizado. Token inválido o experido.'
+                'message'=> 'No autorizado. Token inválido o expirado.'
             ], Response::HTTP_UNAUTHORIZED);
         }
 
