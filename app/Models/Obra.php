@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @package App\Models
  * @property string $nombre
  * @property string $cliente
- * @property string $ubicacion
- * @property float $importe_contrato
+ * @property string|null $ubicacion
+ * @property string $importe_contrato  decimal(12,2); Laravel lo devuelve como texto ("1500000.00")
  * @property string $estado
  */
 class Obra extends Model

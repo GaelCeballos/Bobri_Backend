@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ConceptoController;
+use App\Http\Controllers\ObraController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,9 @@ Route::middleware(['auth:api', 'check.role'])->group(function () {
     Route::post('/categorias', [CategoriaController::class, 'store']);
     Route::get('/conceptos', [ConceptoController::class, 'index']);
     Route::post('/conceptos', [ConceptoController::class, 'store']);
+
+    // El trabajador recibe solo las obras activas y sin importe (ver ObraController::index)
+    Route::get('/obras', [ObraController::class, 'index']);
 });
 
 /*
@@ -52,4 +56,9 @@ Route::middleware(['auth:api', 'check.role:Administrador'])->group(function () {
     Route::patch('conceptos/{concepto}', [ConceptoController::class, 'update']);
     // Une un concepto duplicado con otro: mueve sus gastos y lo elimina
     Route::post('conceptos/{concepto}/fusionar', [ConceptoController::class, 'fusionar']);
+
+    // Obras: sin DELETE, al terminar se marcan Finalizada (los gastos conservan su obra)
+    Route::get('obras/{obra}', [ObraController::class, 'show']);
+    Route::post('obras', [ObraController::class, 'store']);
+    Route::patch('obras/{obra}', [ObraController::class, 'update']);
 });
