@@ -64,9 +64,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ? $error('Esta operación no está permitida en esta ruta.', 405)
             : null);
 
-        // Límite de peticiones superado (middleware throttle)
+        // Límite de peticiones superado (middleware throttle). Conserva la cabecera
+        // Retry-After para que el front sepa cuántos segundos esperar
         $exceptions->render(fn (ThrottleRequestsException $e, Request $request) => $request->is('api/*')
-            ? $error('Demasiados intentos. Espera un momento y vuelve a intentarlo.', 429)
+            ? $error('Demasiados intentos. Espera un momento y vuelve a intentarlo.', 429)->withHeaders($e->getHeaders())
             : null);
 
         // Cualquier otro error inesperado (500). Solo con APP_DEBUG=false: en desarrollo
