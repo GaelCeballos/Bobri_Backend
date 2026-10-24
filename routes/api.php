@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ConceptoController;
+use App\Http\Controllers\GastoController;
 use App\Http\Controllers\ObraController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,14 @@ Route::middleware(['auth:api', 'check.role'])->group(function () {
 
     // El trabajador recibe solo las obras activas y sin importe (ver ObraController::index)
     Route::get('/obras', [ObraController::class, 'index']);
+
+    // Gastos: los permisos por gasto los decide GastoPolicy (lista completa solo admin;
+    // corregir y borrar, el admin o quien lo registró)
+    Route::get('/gastos', [GastoController::class, 'index']);
+    Route::get('/gastos/mios', [GastoController::class, 'mios']);
+    Route::post('/gastos', [GastoController::class, 'store']);
+    Route::patch('/gastos/{gasto}', [GastoController::class, 'update']);
+    Route::delete('/gastos/{gasto}', [GastoController::class, 'destroy']);
 });
 
 /*
