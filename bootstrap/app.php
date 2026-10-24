@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -59,6 +60,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (NotFoundHttpException $e, Request $request) => $request->is('api/*')
             ? $error('El recurso solicitado no existe.', 404)
             : null);
+
+        // Una Policy negó la acción (p. ej. corregir el gasto de otro trabajador). Se usa el
+        // mensaje de la Policy; si no trae uno, Laravel pone "This action is unauthorized."
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) use ($error) {
+            $mensaje = $e->getMessage();
+
+            if ($mensaje === '' || $mensaje === 'This action is unauthorized.') {
+                $mensaje = 'No tienes permiso para realizar esta acción.';
+            }
+
+            return $request->is('api/*') ? $error($mensaje, 403) : null;
+        });
 
         $exceptions->render(fn (MethodNotAllowedHttpException $e, Request $request) => $request->is('api/*')
             ? $error('Esta operación no está permitida en esta ruta.', 405)
