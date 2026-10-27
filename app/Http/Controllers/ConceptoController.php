@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateConceptoRequest;
 use App\Models\Categoria;
 use App\Models\Concepto;
 use App\Models\Gasto;
+use App\Models\TicketRenglon;
 use App\Support\NormalizadorTexto;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -170,6 +171,11 @@ class ConceptoController extends Controller
             // gastos borrados (soft delete) siguen apuntando al concepto; si no se movieran, la
             // llave restrictOnDelete impediría borrar el origen y la fusión respondería 500
             $movidos = Gasto::withTrashed()->where('concepto_id', $origen->getKey())
+                ->update(['concepto_id' => $destino->getKey()]);
+
+            // Los renglones de tickets aún sin validar que sugerían el duplicado pasan al destino;
+            // si no, la llave (nullOnDelete) les quitaría la sugerencia al borrar el origen
+            TicketRenglon::where('concepto_id', $origen->getKey())
                 ->update(['concepto_id' => $destino->getKey()]);
 
             $origen->delete();

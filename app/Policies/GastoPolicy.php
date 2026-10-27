@@ -13,6 +13,8 @@ use Illuminate\Auth\Access\Response;
  *   El trabajador consulta solo los suyos en GET /gastos/mios.
  * - Corregir o borrar un gasto: el Administrador, o el trabajador que lo registró.
  *   Un trabajador no puede tocar los gastos de otro aunque sean de la misma obra.
+ * - Los gastos que salieron de un ticket por foto solo los corrige o borra el Administrador:
+ *   él los validó comparándolos con la foto, y un cambio posterior anularía esa revisión.
  *
  * Laravel la encuentra sola por su nombre (App\Models\Gasto → App\Policies\GastoPolicy).
  * Los controladores la usan con `Gate::authorize('update', $gasto)`; si niega, la API
@@ -37,6 +39,10 @@ class GastoPolicy
      */
     public function update(User $user, Gasto $gasto): Response
     {
+        if ($this->esDeTicketYNoEsAdmin($user, $gasto)) {
+            return Response::deny('Este gasto viene de un ticket validado por el administrador; solo él puede corregirlo.');
+        }
+
         return $this->esAdminODueno($user, $gasto)
             ? Response::allow()
             : Response::deny('Solo puedes corregir los gastos que tú registraste.');
@@ -47,9 +53,21 @@ class GastoPolicy
      */
     public function delete(User $user, Gasto $gasto): Response
     {
+        if ($this->esDeTicketYNoEsAdmin($user, $gasto)) {
+            return Response::deny('Este gasto viene de un ticket validado por el administrador; solo él puede borrarlo.');
+        }
+
         return $this->esAdminODueno($user, $gasto)
             ? Response::allow()
             : Response::deny('Solo puedes borrar los gastos que tú registraste.');
+    }
+
+    /**
+     * Gasto de un ticket validado y el usuario no es Administrador.
+     */
+    private function esDeTicketYNoEsAdmin(User $user, Gasto $gasto): bool
+    {
+        return $gasto->ticket_id !== null && ! $user->isAdmin();
     }
 
     /**

@@ -33,6 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $url_xml
  * @property string|null $uuid_cliente   id generado por el teléfono (evita duplicar reenvíos sin señal)
  * @property \Carbon\Carbon $fecha_gasto
+ * @property int|null $ticket_id         ticket del que salió (null en captura manual)
+ * @property string|null $descripcion_ticket  texto leído del renglón del ticket
  * @property int|null $actualizado_por
  * @property int|null $eliminado_por
  * @property \Carbon\Carbon|null $deleted_at
@@ -49,6 +51,7 @@ class Gasto extends Model
         'cantidad', 'unidad_medida', 'monto_total', 'tipo_pago',
         'qr_payload', 'uuid_sat', 'rfc_emisor', 'url_pdf', 'url_xml',
         'uuid_cliente', 'fecha_gasto', 'actualizado_por',
+        'ticket_id', 'descripcion_ticket',
     ];
 
     /**
@@ -73,6 +76,14 @@ class Gasto extends Model
     public function concepto(): BelongsTo
     {
         return $this->belongsTo(Concepto::class);
+    }
+
+    /**
+     * Ticket por foto del que salió (null en captura manual).
+     */
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(Ticket::class);
     }
 
     /**
