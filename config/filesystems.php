@@ -47,6 +47,38 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Fotos de tickets: SIEMPRE privadas. Se ven solo con un enlace temporal firmado
+         * (FotoTicket::urlTemporal) que se entrega al Administrador.
+         * - Local (TICKETS_DRIVER=local): storage/app/private/tickets.
+         * - Producción (TICKETS_DRIVER=s3): bucket privado de Cloudflare R2 (compatible con S3;
+         *   requiere `composer require league/flysystem-aws-s3-v3`). R2 usa la región "auto".
+         */
+        'tickets' => env('TICKETS_DRIVER', 'local') === 's3'
+            ? [
+                'driver' => 's3',
+                'key' => env('TICKETS_R2_KEY'),
+                'secret' => env('TICKETS_R2_SECRET'),
+                'region' => 'auto',
+                'bucket' => env('TICKETS_R2_BUCKET'),
+                'endpoint' => env('TICKETS_R2_ENDPOINT'),
+                'use_path_style_endpoint' => true,
+                'visibility' => 'private',
+                'throw' => true,
+                'report' => true,
+            ]
+            : [
+                'driver' => 'local',
+                'root' => storage_path('app/private/tickets'),
+                // `serve` permite enlaces temporales firmados también en local. Cada disco servido
+                // necesita su propia ruta (el disco `local` ya usa /storage)
+                'serve' => true,
+                'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/fotos-tickets',
+                'visibility' => 'private',
+                'throw' => true,
+                'report' => true,
+            ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

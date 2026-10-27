@@ -36,7 +36,8 @@ class TicketFactory extends Factory
             'categoria_id' => fn () => Categoria::where('nombre', 'Materiales')->value('id'),
             'tipo_pago' => fake()->randomElement(['Efectivo', 'Tarjeta', 'Transferencia']),
             'uuid_cliente' => (string) Str::uuid(),
-            'ruta_foto' => 'tickets/'.now()->format('Y/m').'/'.Str::uuid().'.jpg',
+            // Ruta dentro del disco `tickets` (año/mes/uuid.webp), igual que FotoTicket::guardar
+            'ruta_foto' => now()->format('Y/m').'/'.Str::uuid().'.webp',
             'estado' => Ticket::PROCESANDO,
         ];
     }
