@@ -50,6 +50,26 @@ final class FusionarConceptoTest extends TestCase
     }
 
     /**
+     * Un gasto borrado (soft delete) sigue en la tabla apuntando a su concepto. Si la
+     * fusión no lo moviera, la llave restrictOnDelete impediría borrar el duplicado y el
+     * admin recibiría un 500. Se mueve también, por si el admin lo consulta después.
+     */
+    public function test_fusionar_tambien_mueve_los_gastos_borrados(): void
+    {
+        $duplicado = Concepto::factory()->create(['nombre' => 'Compra de pala']);
+        $destino = Concepto::factory()->create(['nombre' => 'Pala']);
+        $borrado = Gasto::factory()->create(['concepto_id' => $duplicado->id]);
+        $borrado->delete();
+
+        $admin = User::factory()->admin()->create();
+        $this->comoUsuario($admin)->postJson("/api/conceptos/{$duplicado->id}/fusionar", ['destino_id' => $destino->id])
+            ->assertOk();
+
+        $this->assertDatabaseMissing('conceptos', ['id' => $duplicado->id]);
+        $this->assertSoftDeleted('gastos', ['id' => $borrado->id, 'concepto_id' => $destino->id]);
+    }
+
+    /**
      * La fusión se hace igual, pero si las unidades sugeridas difieren el admin recibe
      * un aviso: las cantidades movidas podrían dejar de ser comparables.
      */
