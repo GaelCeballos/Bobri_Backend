@@ -36,8 +36,9 @@ final class LectorQrCfdi
     /**
      * RFC: 3 letras (persona moral) o 4 (persona física), fecha AAMMDD y homoclave de 3.
      * Incluye Ñ y & porque el SAT los permite en las letras iniciales.
+     * Pública: el Job LeerTicket valida con ella el RFC leído de la foto.
      */
-    private const PATRON_RFC = '/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/u';
+    public const PATRON_RFC = '/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/u';
 
     private const PATRON_UUID = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/';
 

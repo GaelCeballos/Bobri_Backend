@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    /*
+     * Lector de fotos de tickets (ver App\Contracts\LectorTicket y AppServiceProvider).
+     * `falso`: devuelve siempre el mismo ticket, para desarrollo y pruebas. El lector real se
+     * agregará cuando haya tickets reales para probarlo.
+     */
+    'lector_tickets' => [
+        'driver' => env('LECTOR_TICKETS', 'falso'),
+    ],
+
 ];
