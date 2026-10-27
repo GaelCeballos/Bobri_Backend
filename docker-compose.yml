@@ -29,6 +29,38 @@ services:
       php artisan jwt:secret --force || true;
       php artisan serve --host=0.0.0.0 --port=8000"
 
+  # Procesa la cola de tareas (p. ej. leer los productos de la foto de un ticket) aparte del
+  # servidor web: así el trabajador recibe la respuesta al instante y la lectura sigue sola.
+  # queue:listen recarga el código en cada tarea (cómodo en desarrollo); en producción se usa
+  # queue:work con un supervisor que lo reinicie al desplegar.
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bobri-backend-queue
+    user: "0:0"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_CONNECTION: pgsql
+      DB_HOST: pgsql
+      DB_PORT: 5432
+      DB_DATABASE: bobri
+      DB_USERNAME: sail
+      DB_PASSWORD: password
+    volumes:
+      - .:/var/www/html:z
+    working_dir: /var/www/html
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      app:
+        condition: service_started
+    # Espera a que el servicio app termine `composer install` antes de arrancar
+    command: >
+      /bin/sh -c "until [ -f vendor/autoload.php ]; do sleep 2; done;
+      php artisan queue:listen --tries=3 --timeout=120"
+
   pgsql:
     image: postgres:17-alpine
     container_name: bobri-backend-db
