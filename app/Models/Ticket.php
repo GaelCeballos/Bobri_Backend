@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $categoria_id  para los conceptos NUEVOS
  * @property string $tipo_pago
  * @property string $uuid_cliente
+ * @property \Carbon\Carbon $fecha_captura  día en que se tomó la foto (según el teléfono)
  * @property string|null $ruta_foto  null si se rechazó
  * @property string $estado
  * @property \Carbon\Carbon|null $fecha_compra
@@ -60,7 +61,7 @@ class Ticket extends Model
     // Campos que el controlador asigna desde datos ya validados. `estado`, `ruta_foto`,
     // `revisado_por` y `revisado_en` NO están: solo los cambia el propio flujo del ticket
     protected $fillable = [
-        'obra_id', 'user_id', 'categoria_id', 'tipo_pago', 'uuid_cliente',
+        'obra_id', 'user_id', 'categoria_id', 'tipo_pago', 'uuid_cliente', 'fecha_captura',
         'fecha_compra', 'proveedor', 'rfc_emisor', 'total',
         'qr_payload', 'uuid_sat', 'url_pdf', 'url_xml',
     ];
@@ -70,12 +71,13 @@ class Ticket extends Model
 
     /**
      * `decimal:2` conserva el texto con 2 decimales (no float, que perdería centavos).
-     * `date:Y-m-d`: `fecha_compra` es un día del calendario ("2026-10-23"); con hora y zona
+     * `date:Y-m-d`: `fecha_captura` y `fecha_compra` son un día del calendario ("2026-10-23"); con hora y zona
      * horaria, en el front podría mostrarse como el día anterior.
      */
     protected function casts(): array
     {
         return [
+            'fecha_captura' => 'date:Y-m-d',
             'fecha_compra' => 'date:Y-m-d',
             'total' => 'decimal:2',
             'revisado_en' => 'datetime',

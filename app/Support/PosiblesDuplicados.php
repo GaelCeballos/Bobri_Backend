@@ -54,13 +54,11 @@ final class PosiblesDuplicados
     }
 
     /**
-     * Día con el que se comparará: el del ticket o, si no se leyó, el día en que se subió la
-     * foto (el mismo que tendrán sus gastos al validar). `created_at` está en UTC: se pasa a
-     * la hora de México para no tomar el día siguiente en las capturas de la noche.
+     * Día con el que se comparará: el del ticket o, si no se leyó, el día en que se tomó la
+     * foto (el mismo que tendrán sus gastos al validar).
      */
     private static function fecha(Ticket $ticket): string
     {
-        return $ticket->fecha_compra?->toDateString()
-            ?? $ticket->created_at->toImmutable()->setTimezone(ZonaHoraria::POR_DEFECTO)->toDateString();
+        return ($ticket->fecha_compra ?? $ticket->fecha_captura)->toDateString();
     }
 }

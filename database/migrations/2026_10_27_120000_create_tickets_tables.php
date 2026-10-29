@@ -30,6 +30,9 @@ return new class extends Migration
             $table->enum('tipo_pago', ['Efectivo', 'Tarjeta', 'Transferencia']);
             // Igual que en gastos: si la subida sin señal se reintenta, no se duplica el ticket
             $table->uuid('uuid_cliente')->unique();
+            // Día en que se tomó la foto, según el teléfono. NO es `created_at`: sin señal, la foto
+            // puede subirse días después. Es la fecha de los gastos si no se lee la del ticket
+            $table->date('fecha_captura');
 
             // Ruta en el disco `tickets` (Cloudflare R2 en producción), nunca la imagen.
             // null cuando el ticket se rechaza: la foto se borra
